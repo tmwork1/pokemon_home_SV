@@ -1,4 +1,4 @@
-# pokemon_home
+# pokemon_home_SV
 Pokemon HOME APIを使用してポケモンSVのランクマッチ使用率を取得する。
 
 ## 使用言語
