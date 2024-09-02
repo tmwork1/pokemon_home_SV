@@ -14,17 +14,19 @@ target_rule = 0
 dir = os.path.dirname(__file__)
 
 # デコードデータの読み込み
-names, types, moves, items, abilities = {}, {}, {}, {}, {} 
+name_code, type_code, move_code, item_code, ability_code, nature_code = {}, {}, {}, {}, {}, {}
 with open(dir+'/codelist/name_code.json', encoding='UTF-8') as fin:
-    names = json.load(fin)
+    name_code = json.load(fin)
 with open(dir+'/codelist/type_code.json', encoding='UTF-8') as fin:
-    types = json.load(fin)
+    type_code = json.load(fin)
 with open(dir+'/codelist/move_code.json', encoding='UTF-8') as fin:
-    moves = json.load(fin)
+    move_code = json.load(fin)
 with open(dir+'/codelist/item_code.json', encoding='UTF-8') as fin:
-    items = json.load(fin)
+    item_code = json.load(fin)
 with open(dir+'/codelist/ability_code.json', encoding='UTF-8') as fin:
-    abilities = json.load(fin)
+    ability_code = json.load(fin)
+with open(dir+'/codelist/nature_code.json', encoding='UTF-8') as fin:
+    nature_code = json.load(fin)
 
 headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -37,8 +39,9 @@ headers = {
 
 # シーズン情報を取得
 data = '{"soft":"Sw"}'
-#url = 'https://api.battle.pokemon-home.com/cbd/competition/rankmatch/list' #剣盾
-url = 'https://api.battle.pokemon-home.com/tt/cbd/competition/rankmatch/list' #SV
+#url = 'https://api.battle.pokemon-home.com/cbd/competition/rankmatch/list' # 剣盾
+url = 'https://api.battle.pokemon-home.com/tt/cbd/competition/rankmatch/list' # SV
+print('Connecting Pokemon HOME...')
 response = requests.post(url, headers=headers, data=data)
 with open(dir+'/raw/season.json', 'w', encoding='UTF-8') as fout:
     fout.write(response.text)
@@ -74,7 +77,7 @@ ranking = []
 with open(dir+'/raw/pokemon_ranking.json', encoding='UTF-8') as fin:
     data = json.load(fin)
     for i,d in enumerate(data):
-        ranking.append(names[str(d['id'])][str(d['form'])])
+        ranking.append(name_code[str(d['id'])][str(d['form'])])
 
 # 技や持ち物などの採用率を取得
 adoption = {}
@@ -91,32 +94,46 @@ for x in range(1,7):
         data = json.load(fin)
         for zukan_num in data:
             for form_num in data[zukan_num]:
-                name = names[zukan_num][form_num]
-                adoption[name] = {}
+                names = [name_code[zukan_num][form_num]]
 
-                # わざ採用率
-                adoption[name]['move'] = [[], []]
-                for d in data[zukan_num][form_num]['temoti']['waza']:
-                    adoption[name]['move'][0].append(moves[str(d['id'])])
-                    adoption[name]['move'][1].append(float(d['val']))
+                # 同一扱いのフォルム違いを生成する
+                if 'イルカマン' in names[0]:
+                    names.append('イルカマン(マイティ)')
+                elif 'コオリッポ' in names[0]:
+                    names.append('コオリッポ(ナイス)')
 
-                # 特性採用率
-                adoption[name]['ability'] = [[], []]
-                for d in data[zukan_num][form_num]['temoti']['tokusei']:
-                    adoption[name]['ability'][0].append(abilities[str(d['id'])])
-                    adoption[name]['ability'][1].append(float(d['val']))
-                
-                # もちもの採用率
-                adoption[name]['item'] = [[], []]
-                for d in data[zukan_num][form_num]['temoti']['motimono']:
-                    adoption[name]['item'][0].append(items[str(d['id'])])
-                    adoption[name]['item'][1].append(float(d['val']))
-                
-                # テラスタイプ採用率
-                adoption[name]['Ttype'] = [[], []]
-                for d in data[zukan_num][form_num]['temoti']['terastal']:
-                    adoption[name]['Ttype'][0].append(types[str(d['id'])])
-                    adoption[name]['Ttype'][1].append(float(d['val']))
+                for name in names:
+                    adoption[name] = {}
+
+                    # 技とその採用率
+                    adoption[name]['move'] = [[], []]
+                    for d in data[zukan_num][form_num]['temoti']['waza']:
+                        adoption[name]['move'][0].append(move_code[str(d['id'])])
+                        adoption[name]['move'][1].append(float(d['val']))
+
+                    # 性格とその採用率
+                    adoption[name]['nature'] = [[], []]
+                    for d in data[zukan_num][form_num]['temoti']['seikaku']:
+                        adoption[name]['nature'][0].append(nature_code[str(d['id'])])
+                        adoption[name]['nature'][1].append(float(d['val']))
+
+                    # 特性とその採用率
+                    adoption[name]['ability'] = [[], []]
+                    for d in data[zukan_num][form_num]['temoti']['tokusei']:
+                        adoption[name]['ability'][0].append(ability_code[str(d['id'])])
+                        adoption[name]['ability'][1].append(float(d['val']))
+                    
+                    # アイテムとその採用率
+                    adoption[name]['item'] = [[], []]
+                    for d in data[zukan_num][form_num]['temoti']['motimono']:
+                        adoption[name]['item'][0].append(item_code[str(d['id'])])
+                        adoption[name]['item'][1].append(float(d['val']))
+                    
+                    # テラスタイプとその採用率
+                    adoption[name]['Ttype'] = [[], []]
+                    for d in data[zukan_num][form_num]['temoti']['terastal']:
+                        adoption[name]['Ttype'][0].append(type_code[str(d['id'])])
+                        adoption[name]['Ttype'][1].append(float(d['val']))
 
 for name in adoption:
     if name not in ranking:
@@ -131,8 +148,8 @@ for name in ranking:
 
     if name == 'オーガポン':
         _ablities = ['かたやぶり','ちょすい','がんじょう']
-        _items = ['かまどのめん','いどのめん','いしずえのめん']
-        _Ttypes = ['ほのお','みず','いわ']
+        _item_code = ['かまどのめん','いどのめん','いしずえのめん']
+        _Ttype_code = ['ほのお','みず','いわ']
         # 草
         adoption2[name]['ability'][0] = ['まけんき']
         adoption2[name]['ability'][1] = [adoption[name]['ability'][1][adoption[name]['ability'][0].index('まけんき')]]
@@ -141,7 +158,7 @@ for name in ranking:
         adoption2[name]['item'][0] = []
         adoption2[name]['item'][1] = []
         for j, item in enumerate(adoption[name]['item'][0]):
-            if item not in _items:
+            if item not in _item_code:
                 adoption2[name]['item'][0].append(item)
                 adoption2[name]['item'][1].append(adoption[name]['item'][1][j])
         total = sum(adoption2[name]['item'][1])
@@ -153,9 +170,9 @@ for name in ranking:
             adoption2[s] = copy.deepcopy(adoption[name])
             adoption2[s]['ability'][0] = [_ablities[j]]
             adoption2[s]['ability'][1] = [adoption[name]['ability'][1][adoption[name]['ability'][0].index(_ablities[j])]]
-            adoption2[s]['item'][0] = [_items[j]]
+            adoption2[s]['item'][0] = [_item_code[j]]
             adoption2[s]['item'][1] = [100]
-            adoption2[s]['Ttype'][0] = [_Ttypes[j]]
+            adoption2[s]['Ttype'][0] = [_Ttype_code[j]]
             adoption2[s]['Ttype'][1] = [100]
 
 with open(dir+'/battle_data/season'+str(current_season)+'.json', 'w', encoding='UTF-8') as fout:
