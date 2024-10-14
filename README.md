@@ -1,15 +1,27 @@
 # pokemon_home_SV
-Pokemon HOME APIを使用してポケモンSVのランクマッチ使用率を取得する。
-
-## 使用言語
-- Python
-
-## ディレクトリ構成
-- battle_data : 使用率データの最終出力先
-- codelist : APIで取得したデータを日本語名に変換する対応表を格納
-- raw : APIやポケモンホーム内部で使われているファイルを格納
-
-## 使い方
+全国図鑑を生成する
 ```
-python update_battle_data.py
+python create_zukan.py
 ```
+
+ランクマッチ使用率の一覧を生成する
+```
+python create_battle_data.py
+```
+
+日本語 <-> 外国語名の対応表を生成する
+```
+python create_translation_table.py
+```
+
+alias.py
+ポケモンのエイリアス名を返す関数を格納. Import用
+
+##　出力形式
+json/csv
+
+
+## 引用
+ポケモンHOME (API使用)
+ポケモンずかん https://zukan.pokemon.co.jp/
+ポケモンWiki https://wiki.xn--rckteqa2e.com/wiki/%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%9A%E3%83%BC%E3%82%B8
