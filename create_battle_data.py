@@ -214,7 +214,7 @@ if __name__ == '__main__':
     
     # json出力
     with open(f"{dir}/output/season{current_season}.json", 'w', encoding='utf-8') as fout:
-        json.dump(df.to_json(), fout, ensure_ascii=False)
+        fout.write(df.T.to_json())
 
     # csv出力
     with open(f'output/season{current_season}.csv', 'w', encoding='utf-8') as fout:

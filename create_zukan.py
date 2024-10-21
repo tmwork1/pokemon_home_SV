@@ -216,8 +216,8 @@ def read_wiki(zukan):
     labels = ['H','A','B','C','D','S']
     for key in zukan:
         zukan[key]['last_gen'] = 0
-        for j in range(3):
-            zukan[key][labels[j]] = ''
+        for s in labels:
+            zukan[key][s] = 0
 
     # 古い世代から順にすべて参照する
     urls = [
@@ -287,9 +287,14 @@ def read_wiki(zukan):
                 if form:
                     matched &= d['form'] == form
                 if matched:
-                    zukan[key]['last_gen'] = g + 1
+                    if f"メガ{d['name']}" in d['form']:
+                        zukan[key]['last_gen'] = 7
+                    elif "キョダイ" in d['form']:
+                        zukan[key]['last_gen'] = 8
+                    else:
+                        zukan[key]['last_gen'] = g + 1
                     for j,v in enumerate(data[4:10]):
-                        zukan[key][labels[j]] = v
+                        zukan[key][labels[j]] = int(v)
 
 def dump(zukan):
     # json出力
@@ -314,10 +319,10 @@ if __name__ == '__main__':
     #"""
 
     # 3.ポケモンWikiから夢特性と種族値を取得 (すこし時間がかかる)
-    """
+    #"""
     with open(f'output/zukan.json', encoding='utf-8') as fin:
         # 途中保存から再開
         zukan = json.load(fin)
-    """
+    #"""
     read_wiki(zukan)
     dump(zukan) # 最終出力
