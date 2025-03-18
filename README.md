@@ -1,4 +1,10 @@
 # pokemon_home_SV
+## インストール
+```
+git clone https://github.com/tmwork1/pokemon_home_SV.git
+```
+
+## 使い方
 全国図鑑を生成する
 ```
 python create_zukan.py
@@ -14,11 +20,13 @@ python create_battle_data.py
 python create_translation_table.py
 ```
 
-alias.py : ポケモンのエイリアス名を返す関数 (Import用)
+### ランクマッチ使用率はこちらからダウンロードすることもできます
+(例) シーズン28  
+https://pbasv.cloudfree.jp/download/home/season28.json  
+https://pbasv.cloudfree.jp/download/home/season28.csv
 
 ## 出力形式
 json/csv
-
 
 ## 引用
 ポケモンHOME (API使用)
